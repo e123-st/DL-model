@@ -8,12 +8,12 @@ __BertforRegression__
 To validate the predition peformance of  model, the 'Eval_BertforRegression.py'  in /example/validation/ should be used.  
 To only predict the result via model, the 'Pred_BertforRegression.py'  in /example/prediction/ should be used.  
   
-__BertforRegressionPlusMLP__ 
+__BertforRegressionPlusMLP__   
 'BertforRegressionPlusMLP' is a model type for fine-tuning. Refering the 'Train_BertforRegressionPlusMLP.py'  in /example/training/,  the model could be trained.  
 To validate the predition peformance of  model, the 'Eval_BertforRegressionPlusMLP.py'  in /example/validation/ could be used.  
 To only predict the result via model, the 'Pred_BertforRegressionPlusMLP.py'  in /example/prediction/ could be used.  
   
-__Other__ 
+__Other__   
 There are different kinds of input files in /example/input_file/, which are both the original Excel tables or txt files and splited txt files. The files of training/validation/test sets can be splited with the code in 'DataSplit.py'. Besides, the 'DataSplit.py' can also move the MOFids, labels,and continuous datas from Excel table to corresponding file instead of spliting data into  training/validation/test sets.  
   
-In DL_model, there are the models developed in our work.  
+In DL_model file, there are the models developed in our work.  
