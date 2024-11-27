@@ -16,4 +16,4 @@ To only predict the result via model, the 'Pred_BertforRegressionPlusMLP.py'  in
 __DL models__   
 The weights of models developed in our work can be found in DL_model.
 
-There are different kinds of input files in /example/input_file/, which are both the original Excel tables or txt files and splited txt files. The files of training/validation/test sets can be splited with the code in 'DataSplit.py'. Besides, the 'DataSplit.py' can also move the MOFids, labels,and continuous datas from Excel table to corresponding file instead of spliting data into training/validation/test sets..  
+There are different kinds of input files in /example/input_file/, which are both the original Excel tables or txt files and splited txt files. The files of training/validation/test sets can be splited with the code in 'DataSplit.py'. Besides, the 'DataSplit.py' can also move the MOFids, labels,and continuous datas from Excel table to corresponding file instead of spliting data into training/validation/test sets.
