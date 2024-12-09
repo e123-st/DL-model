@@ -619,7 +619,7 @@ class Models():
                              attention.append(pred[2])   
                           pbar.update(1)
                           
-            if accelerator.device == 'cuda' :
+            if str(accelerator.device) == 'cuda' :
                labels = list(np.ravel(torch.cat(labels).cpu().numpy()))
                logits = list(np.ravel(torch.cat(logits).cpu().numpy())) 
                   
@@ -628,9 +628,9 @@ class Models():
                   Representation_output = list(torch.cat(Representation_output).cpu().numpy())  
                   
                if output_attentions_to_txt == True :
-                  attention = list(torch.cat(attention).cpu().numpy())    
+                  attention = list(torch.cat(attention[0]).cpu().numpy())    
                
-            if accelerator.device == 'cpu' :
+            if str(accelerator.device) == 'cpu' :
                labels = list(np.ravel(torch.cat(labels).numpy()))
                logits = list(np.ravel(torch.cat(logits).numpy())) 
                                    
@@ -913,7 +913,7 @@ class Models():
                                   attention.append(pred[2])   
                                pbar.update(1)
                                
-                 if accelerator.device == 'cuda' :
+                 if str(accelerator.device) == 'cuda' :
 
                     logits = list(np.ravel(torch.cat(logits).cpu().numpy())) 
                        
@@ -922,9 +922,9 @@ class Models():
                        Representation_output= list(torch.cat(Representation_output).cpu().numpy())  
                        
                     if output_attentions_to_txt == True :
-                       attention = list(torch.cat(attention).cpu().numpy())    
+                       attention = list(torch.cat(attention[0]).cpu().numpy())    
                     
-                 if accelerator.device == 'cpu' :
+                 if str(accelerator.device) == 'cpu' :
                     logits = list(np.ravel(torch.cat(logits).numpy())) 
                                          
                        
