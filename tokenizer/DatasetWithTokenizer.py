@@ -27,9 +27,11 @@ class MOFid_Tokenizer(BertTokenizer):
           ---->  SMILES&&Topology.cat
       """
       
-      text = text.strip('\n').strip('"')
-      MOFid,MOF_name = text.split(';')
-      MOFid = MOFid.replace(' MOFid-v1.','&&')      
+      MOFid = text.strip('\n').strip('"')
+      #MOFid,MOF_name = text.split(';')
+      if ' MOFid-v1.' in MOFid:
+          MOFid,MOF_name = MOFid.split(';')      
+          MOFid = MOFid.replace(' MOFid-v1.','&&')      
       smiles,topo = MOFid.split('&&')
       smiles_tokens = self.smiles_tokenizer.tokenize(smiles)
       topo_tokens = self.topo_tokenizer.tokenize(topo)
@@ -253,4 +255,73 @@ class token_encode_with_MLPinputs_and_Regresslabels(torch.utils.data.Dataset):
         
         return input_data    
 
+    
+class token_encode_with_MLPinputs_and_Classlabels(torch.utils.data.Dataset):
+    
+    def __init__(self,data_gf_path:str,data_mofid_path:str,data_y_path:str,vocab_path:str,max_length:int,first_topo_id:int,last_topo_id:int,fp16=False): 
+        
+        self.file_gf = open(data_gf_path,'r').readlines()
+        self.file_mofid = open(data_mofid_path,'r').readlines()
+        self.file_y = open(data_y_path,'r').readlines()
+        #self.data_gf_path = data_gf_path
+        #self.data_mofid_path = data_mofid_path
+        #self.data_y_path = data_y_path
+        self.vocab_path = vocab_path
+        self.max_length = max_length
+        self.num_sample = len(self.file_gf)
+        self.first_topo_id = first_topo_id
+        self.last_topo_id = last_topo_id 
+        self.num_class = last_topo_id - first_topo_id + 2 
+        self.num_sample = len(self.file_gf)
+        if fp16 == False :
+           self.precision = 'fp32'
+        if fp16 == True :
+           self.precision = 'fp16'
+        """
+        词表里，拓扑结构名字按顺序排放在一起，添加最后一类：未包含的拓扑
+        """
+        
+    def __len__(self):
+        return self.num_sample
+    
+    def __getitem__(self,index):        
+        
+#Global feature        
+        global_feature = self.file_gf[index] 
+        global_feature = global_feature.strip('\n')
+        global_feature = global_feature.split(' ')
+        gf = []
+        for i in range(len(global_feature)):
+              A=float(global_feature[i])
+              gf.append(A)          
+        global_feature = np.array(gf)
+        #global_feature = np.array(global_feature)
+        #global_feature = torch.from_numpy(global_feature) 
+        if self.precision == 'fp32' :
+           global_feature = torch.from_numpy(global_feature).to(torch.float32) 
+        if self.precision == 'fp16' :
+           global_feature = torch.from_numpy(global_feature).to(torch.float16)
+#MOFid        
+        tokenizer = MOFid_Tokenizer(vocab_file = self.vocab_path)
+        encode = tokenizer.encode_plus(str(self.file_mofid[index]),
+                                       max_length = self.max_length,
+                                       padding = 'max_length', 
+                                       truncation = True,
+                                       return_tensors = 'pt')  
+#labels        
+        labels = self.file_y[index] 
+        labels = labels.strip('\n')
+        labels = tokenizer.convert_tokens_to_ids(labels)
+        if labels >= self.first_topo_id and labels <= self.last_topo_id :
+           labels = torch.tensor(labels - self.first_topo_id, dtype=torch.long)          
+        if labels < self.first_topo_id or labels > self.last_topo_id  :
+           labels = torch.tensor(self.num_class-1, dtype=torch.long)
+           
+        input_data = {'global_feature':global_feature,
+                      'input_ids':encode['input_ids'].flatten(),
+                      'token_type_ids':encode['token_type_ids'].flatten(),
+                      'attention_mask':encode['attention_mask'].flatten(),
+                      'labels':labels} 
+        
+        return input_data    
     
