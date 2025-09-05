@@ -753,7 +753,7 @@ class Models():
          return print('Finish.')
      
                      
-     def preidct(self, model = None,
+     def predict(self, model = None,
                        batch_size = 8,
                        MLP_input_neurons = None,
                        MLP_output_neurons = None,
@@ -791,7 +791,7 @@ class Models():
      
               if self.Model_Type == 'BertforRegression' :
                   
-                 dataset = token_encode(data_x_path = mofid_path,
+                 dataset = token_encode(data_path = mofid_path,
                                         vocab_path = self.vocab_path,
                                         max_length = self.max_position_embeddings)
                  
