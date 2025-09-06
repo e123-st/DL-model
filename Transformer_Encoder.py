@@ -579,10 +579,7 @@ class Models():
             if output_representation_to_txt == True :
                Representation_output = list(torch.cat(Representation_output).numpy())  
                
-            if output_attentions_to_txt == True :
-               attention = list(attention[0][0].numpy()) 
-            
-                        
+                                    
          if self.use_Trainer == False and self.use_Accelerate == True :
              
             print('----------------------')
@@ -618,7 +615,7 @@ class Models():
                           if output_attentions_to_txt == True :
                              attention.append(pred[2])   
                           pbar.update(1)
-                          
+             
             if str(accelerator.device) == 'cuda' :
                labels = list(np.ravel(torch.cat(labels).cpu().numpy()))
                logits = list(np.ravel(torch.cat(logits).cpu().numpy())) 
@@ -626,9 +623,7 @@ class Models():
                   
                if output_representation_to_txt == True :
                   Representation_output = list(torch.cat(Representation_output).cpu().numpy())  
-                  
-               if output_attentions_to_txt == True :
-                  attention = list(torch.cat(attention[0]).cpu().numpy())    
+ 
                
             if str(accelerator.device) == 'cpu' :
                labels = list(np.ravel(torch.cat(labels).numpy()))
@@ -637,9 +632,6 @@ class Models():
                   
                if output_representation_to_txt == True :
                   Representation_output = list(torch.cat(Representation_output).numpy())  
-                  
-               if output_attentions_to_txt == True :
-                  attention = list(attention[0][0].numpy())    
                
 
          if output_attentions_to_txt == True :
@@ -737,11 +729,32 @@ class Models():
          if output_attentions_to_txt == True :
             attention_path_exist = os.path.exists(output_path+'Attettion_Head') 
             if attention_path_exist == False :
-               os.mkdir(output_path+'Attettion_Head')   
+               os.mkdir(output_path+'Attettion_Head')
                
-            for i in range(len(attention[0])):                 
-                  attention_output_path = output_path+'Attettion_Head/'+split+'_attention_Head_'+str(i+1)+'_.txt'
-                  np.savetxt(attention_output_path,attention[0][i]) 
+            if self.use_Trainer == False and self.use_Accelerate == False :                     
+               for i in range(len(attention[0])):
+                   attention_head = list(attention[0][i].numpy()) 
+                   for j in range(len(attention_head[0])):                        
+                         attention_output_path = output_path+'Attettion_Head/'+split+'_layer_'+str(i+1)+'_attention_Head_'+str(j+1)+'_.txt'
+                         np.savetxt(attention_output_path,attention_head[0][j])
+                   
+            if self.use_Trainer == False and self.use_Accelerate == True :              
+               if str(accelerator.device) == 'cuda' :
+                  for i in range(len(attention[0])):
+                      attention_head = list(attention[0][i].cpu().numpy())  
+                      for j in range(len(attention_head[0])):                        
+                            attention_output_path = output_path+'Attettion_Head/'+split+'_layer_'+str(i+1)+'_attention_Head_'+str(j+1)+'_.txt'
+                            np.savetxt(attention_output_path,attention_head[0][j])
+
+                                                   
+               if str(accelerator.device) == 'cpu' :
+                  for i in range(len(attention[0])):
+                      attention_head = list(attention[0][i].numpy())      
+                      
+                      for j in range(len(attention_head[0])):                        
+                            attention_output_path = output_path+'Attettion_Head/'+split+'_layer_'+str(i+1)+'_attention_Head_'+str(j+1)+'_.txt'
+                            np.savetxt(attention_output_path,attention_head[0][j])
+                    
 
             token_output_path = output_path+'Attettion_Head/'+split+'_token.txt'
             output = open(token_output_path,'w')
@@ -875,11 +888,8 @@ class Models():
                     
                  if output_representation_to_txt == True :
                     Representation_output = list(torch.cat(Representation_output).numpy())  
-                    
-                 if output_attentions_to_txt == True :
-                    attention = list(attention[0][0].numpy()) 
-                 
-                             
+
+                                              
               if self.use_Trainer == False and self.use_Accelerate == True :
                   
                  print('----------------------')
@@ -896,8 +906,7 @@ class Models():
                     
                  if output_attentions_to_txt == True :
                     attention = []
-                 
-            
+                             
                  accelerator=Accelerator()
                                   
                  Pred_model, data_loader = accelerator.prepare(Pred_model, loader)
@@ -916,25 +925,16 @@ class Models():
                  if str(accelerator.device) == 'cuda' :
 
                     logits = list(np.ravel(torch.cat(logits).cpu().numpy())) 
-                       
-                       
+                                              
                     if output_representation_to_txt == True :
-                       Representation_output= list(torch.cat(Representation_output).cpu().numpy())  
-                       
-                    if output_attentions_to_txt == True :
-                       attention = list(torch.cat(attention[0]).cpu().numpy())    
+                       Representation_output= list(torch.cat(Representation_output).cpu().numpy())                           
                     
                  if str(accelerator.device) == 'cpu' :
                     logits = list(np.ravel(torch.cat(logits).numpy())) 
-                                         
-                       
+                                                                
                     if output_representation_to_txt == True :
                        Representation_output = list(torch.cat(Representation_output).numpy())  
-                       
-                    if output_attentions_to_txt == True :
-                       attention = list(attention[0][0].numpy())    
-                    
-     
+                                               
               if output_attentions_to_txt == True :
                  token = []
                  tokenizer = MOFid_Tokenizer(vocab_file = self.vocab_path)  
@@ -989,15 +989,27 @@ class Models():
                  if attention_path_exist == False :
                     os.mkdir(output_path+'Attettion_Head')   
                     
-                 for i in range(len(attention[0])):                 
-                       attention_output_path = output_path+'Attettion_Head/'+'_attention_Head_'+str(i+1)+'_.txt'
-                       np.savetxt(attention_output_path,attention[0][i]) 
-     
-                 token_output_path = output_path+'Attettion_Head/'+'_token.txt'
-                 output = open(token_output_path,'w')
-                 for i in range(len(token)):
-                     output.write(str(token[i]))
-                     output.write('\n')
-                 output.close()
+                 if self.use_Trainer == False and self.use_Accelerate == False :                     
+                    for i in range(len(attention[0])):
+                        attention_head = list(attention[0][i].numpy()) 
+                        for j in range(len(attention_head[0])):                        
+                              attention_output_path = output_path+'Attettion_Head/'+'_layer_'+str(i+1)+'_attention_Head_'+str(j+1)+'_.txt'
+                              np.savetxt(attention_output_path,attention_head[0][j])
+                        
+                 if self.use_Trainer == False and self.use_Accelerate == True :              
+                    if str(accelerator.device) == 'cuda' :
+                       for i in range(len(attention[0])):
+                           attention_head = list(attention[0][i].cpu().numpy())  
+                           for j in range(len(attention_head[0])):                        
+                                 attention_output_path = output_path+'Attettion_Head/'+'_layer_'+str(i+1)+'_attention_Head_'+str(j+1)+'_.txt'
+                                 np.savetxt(attention_output_path,attention_head[0][j])
+                                                        
+                    if str(accelerator.device) == 'cpu' :
+                       for i in range(len(attention[0])):
+                           attention_head = list(attention[0][i].numpy())      
+                           
+                           for j in range(len(attention_head[0])):                        
+                                 attention_output_path = output_path+'Attettion_Head/'+'_layer_'+str(i+1)+'_attention_Head_'+str(j+1)+'_.txt'
+                                 np.savetxt(attention_output_path,attention_head[0][j])
                  
               return print('Finish.')
